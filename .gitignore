@@ -1,0 +1,54 @@
+# 测试文件和敏感内容
+tests/
+*.rtf
+*.html
+*.png
+*.jpg
+*.svg
+Google Gemini_files/
+saved_resource.html
+
+# Node modules
+node_modules/
+
+# 构建产物（可选，如果希望用户自己构建）
+# background.js
+# content.js
+# popup.js
+# html2pdf.bundle.min.js
+
+# 日志文件
+*.log
+npm-debug.log*
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 环境变量和配置
+.env
+.env.local
+*.key
+*.pem
+*.cert
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 个人笔记和敏感文档
+*personal*
+*private*
+*credential*
+*password*
+*secret*
+*api_key*
+*access_token*
