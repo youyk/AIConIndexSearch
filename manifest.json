@@ -5,7 +5,8 @@
   "description": "自动捕获、存储和管理AI对话内容，提供强大的全文搜索功能",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "host_permissions": [
     "https://*/*",

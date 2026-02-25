@@ -2,14 +2,111 @@ import { ConversationIndexer } from './indexer';
 import { Conversation } from '../shared/types';
 import { ConversationStorage } from '../shared/storage';
 import { ExportManager } from '../shared/export-manager';
+import { DomainConfigManager } from '../shared/domain-config';
 
 const indexer = new ConversationIndexer();
 const storage = new ConversationStorage();
 const exportManager = new ExportManager(storage);
+const domainConfig = new DomainConfigManager();
 
 // 初始化
 indexer.init().catch(console.error);
 storage.init().catch(console.error);
+
+// 更新图标状态
+async function updateIconForTab(tabId?: number): Promise<void> {
+  try {
+    let url: string | undefined;
+    
+    if (tabId) {
+      const tab = await chrome.tabs.get(tabId);
+      url = tab.url;
+    } else {
+      // 获取当前活动标签页
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tabs.length > 0 && tabs[0].url) {
+        url = tabs[0].url;
+      }
+    }
+    
+    if (!url) {
+      // 如果没有URL，使用默认图标（启用状态）
+      await chrome.action.setIcon({
+        path: {
+          16: 'icons/icon16.png',
+          48: 'icons/icon48.png',
+          128: 'icons/icon128.png'
+        }
+      });
+      return;
+    }
+    
+    // 提取域名
+    let domain: string;
+    try {
+      const urlObj = new URL(url);
+      domain = urlObj.hostname;
+    } catch {
+      // 无效URL，使用默认图标
+      await chrome.action.setIcon({
+        path: {
+          16: 'icons/icon16.png',
+          48: 'icons/icon48.png',
+          128: 'icons/icon128.png'
+        }
+      });
+      return;
+    }
+    
+    // 检查域名是否启用
+    const isEnabled = await domainConfig.isDomainTracked(domain);
+    
+    // 根据状态设置图标
+    if (isEnabled) {
+      await chrome.action.setIcon({
+        path: {
+          16: 'icons/icon16.png',
+          48: 'icons/icon48.png',
+          128: 'icons/icon128.png'
+        }
+      });
+    } else {
+      await chrome.action.setIcon({
+        path: {
+          16: 'icons/icon16_disabled.png',
+          48: 'icons/icon48_disabled.png',
+          128: 'icons/icon128_disabled.png'
+        }
+      });
+    }
+  } catch (error) {
+    // 出错时使用默认图标
+    try {
+      await chrome.action.setIcon({
+        path: {
+          16: 'icons/icon16.png',
+          48: 'icons/icon48.png',
+          128: 'icons/icon128.png'
+        }
+      });
+    } catch {}
+  }
+}
+
+// 监听标签页激活事件
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  await updateIconForTab(activeInfo.tabId);
+});
+
+// 监听标签页更新事件（URL变化）
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.active && tab.url) {
+    await updateIconForTab(tabId);
+  }
+});
+
+// 初始化时更新图标
+updateIconForTab().catch(console.error);
 
 // 监听消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -108,6 +205,12 @@ async function handleMessage(message: any, sender: chrome.runtime.MessageSender,
           { conversationIds: message.conversationIds }
         );
         sendResponse({ content: exportContent });
+        break;
+
+      case 'UPDATE_DOMAIN_CONFIG':
+        // 域名配置更新时，更新图标
+        await updateIconForTab();
+        sendResponse({ success: true });
         break;
 
       default:

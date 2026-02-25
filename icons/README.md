@@ -2,39 +2,51 @@
 
 插件需要以下图标文件：
 
-- `icon16.png` - 16x16像素
-- `icon48.png` - 48x48像素  
-- `icon128.png` - 128x128像素
+- `icon16.png` - 16x16像素（工具栏小图标）
+- `icon48.png` - 48x48像素（扩展管理页面）
+- `icon128.png` - 128x128像素（Chrome Web Store）
 
-## 创建图标
+## 图标设计
 
-你可以使用以下方法创建图标：
+当前图标采用现代化设计，与插件UI主题保持一致：
 
-1. **在线工具**：
-   - https://www.favicon-generator.org/
-   - https://realfavicongenerator.net/
+### 设计元素
+- **紫色渐变背景**：使用主题色 `#667eea` → `#764ba2`
+- **对话气泡**：白色圆形气泡，内部有紫色小点，代表AI对话
+- **知识库符号**：白色书本/文档堆叠，代表知识库存储
+- **连接线**：表示对话内容存储到知识库的过程
 
-2. **使用ImageMagick创建简单占位符**：
-   ```bash
-   convert -size 16x16 xc:#4a90e2 icon16.png
-   convert -size 48x48 xc:#4a90e2 icon48.png
-   convert -size 128x128 xc:#4a90e2 icon128.png
-   ```
+### 设计特点
+- ✅ 高辨识度：独特的对话气泡+知识库组合设计
+- ✅ 主题一致：与插件UI的紫色渐变主题完美匹配
+- ✅ 多尺寸优化：针对16px、48px、128px分别优化设计
+- ✅ 现代化风格：圆角、渐变、简洁美观
 
-3. **使用Python PIL创建**：
-   ```python
-   from PIL import Image, ImageDraw
-   
-   sizes = [16, 48, 128]
-   for size in sizes:
-       img = Image.new('RGB', (size, size), color='#4a90e2')
-       img.save(f'icon{size}.png')
-   ```
+## 重新生成图标
 
-4. **临时方案**：可以使用任何16x16, 48x48, 128x128的PNG图片作为占位符
+如果需要重新生成图标，运行：
 
-## 图标设计建议
+```bash
+python3 create-icons.py
+```
 
-- 使用蓝色主题（#4a90e2）与插件UI保持一致
-- 可以包含"AI"或"KB"字样
-- 简洁明了，在小尺寸下也能清晰识别
+**要求**：需要安装 Pillow 库
+```bash
+pip install Pillow
+```
+
+## 图标设计说明
+
+### 大尺寸（48px+）
+- 左侧：对话气泡（带内部小点）+ 小尾巴
+- 右侧：三本堆叠的书本/文档
+- 连接线：从气泡指向书本
+
+### 中等尺寸（16-48px）
+- 左侧：简化的对话气泡
+- 右侧：两本堆叠的书本
+
+### 小尺寸（16px）
+- 单个对话气泡，内部有小点
+
+所有尺寸都使用相同的紫色渐变背景，确保视觉一致性。

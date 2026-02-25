@@ -550,17 +550,23 @@ async function addDomain() {
     await domainConfig.addDomain(domain);
     newDomainInput.value = '';
     await loadDomains();
+    // 通知background更新图标
+    await chrome.runtime.sendMessage({ type: 'UPDATE_DOMAIN_CONFIG' });
   }
 }
 
 async function toggleDomain(domain: string, enabled: boolean) {
   await domainConfig.updateDomain(domain, { enabled });
+  // 通知background更新图标
+  await chrome.runtime.sendMessage({ type: 'UPDATE_DOMAIN_CONFIG' });
 }
 
 async function removeDomain(domain: string) {
   if (confirm('确定要删除这个域名吗？')) {
     await domainConfig.removeDomain(domain);
     await loadDomains();
+    // 通知background更新图标
+    await chrome.runtime.sendMessage({ type: 'UPDATE_DOMAIN_CONFIG' });
   }
 }
 
